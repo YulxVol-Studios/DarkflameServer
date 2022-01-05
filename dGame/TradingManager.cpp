@@ -190,11 +190,11 @@ void Trade::Complete()
 
     // Trading Log.
     // Save transactions as XML.
-    tinyxml2::XMLDocument* tradeDoc;
+    tinyxml2::XMLDocument tradeDoc;
 
-    auto* root = tradeDoc->InsertNewChildElement("Trade");
-    auto* player1 = root->InsertNewChildElement("PlayerA");
-    auto* player2 = root->InsertNewChildElement("PlayerB");
+    auto* TradeRoot = tradeDoc.NewElement("Trade");
+    auto* player1 = TradeRoot->InsertNewChildElement("PlayerA");
+    auto* player2 = TradeRoot->InsertNewChildElement("PlayerB");
 
     // Test stuff
     int64_t p1Coins = characterA->GetCoins() - beforeA;
@@ -234,12 +234,10 @@ void Trade::Complete()
       }
     }
 
-    tradeDoc->InsertEndChild(player1);
-    tradeDoc->InsertEndChild(player2);
-    tradeDoc->InsertEndChild(root);
+    tradeDoc.InsertEndChild(TradeRoot);
 
     tinyxml2::XMLPrinter printer;
-    tradeDoc->Accept(&printer);
+    tradeDoc.Accept(&printer);
     const char* printerValue = printer.CStr();
 
     // Append data to DB table.
