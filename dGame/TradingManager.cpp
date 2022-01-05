@@ -190,9 +190,9 @@ void Trade::Complete()
 
     // Trading Log.
     // Save transactions as XML.
-    tinyxml2::XMLDocument* tradeDoc;
+    tinyxml2::XMLDocument tradeDoc;
 
-    auto* root = tradeDoc->InsertNewChildElement("Trade");
+    auto* root = tradeDoc.InsertNewChildElement("Trade");
     auto* player1 = root->InsertNewChildElement("PlayerA");
     auto* player2 = root->InsertNewChildElement("PlayerB");
 
