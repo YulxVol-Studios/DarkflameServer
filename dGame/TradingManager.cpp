@@ -213,8 +213,8 @@ void Trade::Complete()
         auto* item = items->InsertNewChildElement("item");
         Game::logger->Log("TradingManager", "----- Passing through loop 1.\n");
 
-        Game::logger->Log("TradeDebug", tradeItem.itemLot);
-        Game::logger->Log("TradeDebug", tradeItem.itemCount);
+        Game::logger->Log("TradeDebug", "Item lot: $lu\n", tradeItem.itemLot);
+        Game::logger->Log("TradeDebug", "Item count: $lu\n", tradeItem.itemCount);
         item->SetAttribute("id", tradeItem.itemLot);
         item->SetAttribute("count", tradeItem.itemCount);
       }
