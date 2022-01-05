@@ -197,7 +197,7 @@ void Trade::Complete()
     int p2Coins = characterB->GetCoins() - m_CoinsB + m_CoinsA;
 
     Game::logger->Log("TradingManager", "----------------------------- A:(%llu) <-> B:(%llu)\n", characterA->GetCoins(), characterB->GetCoins());
-    Game::logger->Log("TradingManager", "----------------------------- A:(%llu) <-> B:(%llu)\n", m_CoinsA, m_CoinsB);
+    Game::logger->Log("TradingManager", "----------------------------- A:(%llu) <-> B:(%llu)\n", m_CoinsA + m_CoinsB, m_CoinsB + m_CoinsA);
 
     // unordered_map<lot, count>
     std::unordered_map<uint32_t, uint32_t> p1Items = {{1, 2}, {3, 4}}; // example lots
@@ -233,6 +233,7 @@ void Trade::Complete()
 
     tradeDoc.InsertEndChild(player1);
     tradeDoc.InsertEndChild(player2);
+    tradeDoc.InsertEndChild(root);
 
     tinyxml2::XMLPrinter printer;
     tradeDoc.Accept(&printer);
@@ -240,7 +241,7 @@ void Trade::Complete()
 
     // Append data to DB table.
     auto stmt = Database::CreatePreppedStmt("INSERT INTO trade_logs (id, parA, parB, transaction) VALUES (?, ?, ?, ?)");
-    stmt->setUInt(1, m_TradeId);
+    stmt->setUInt(1, GetTradeId());
     stmt->setUInt(2, characterA->GetID());
     stmt->setUInt(3, characterB->GetID());
     stmt->setString(4, printerValue);
