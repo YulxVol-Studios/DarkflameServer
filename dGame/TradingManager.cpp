@@ -197,8 +197,8 @@ void Trade::Complete()
     auto* player2 = root->InsertNewChildElement("PlayerB");
 
     // Test stuff
-    int64_t p1Coins = characterA->GetCoins() - beforeA();
-    int64_t p2Coins = characterB->GetCoins() - beforeB();
+    int64_t p1Coins = characterA->GetCoins() - beforeA;
+    int64_t p2Coins = characterB->GetCoins() - beforeB;
 
     Game::logger->Log("TradingManager", "----------------------------- A:(%llu) <-> B:(%llu)\n", characterA->GetCoins(), characterB->GetCoins());
     Game::logger->Log("TradingManager", "----------------------------- A:(%llu) <-> B:(%llu)\n", m_CoinsA + m_CoinsB, m_CoinsB + m_CoinsA);
