@@ -188,14 +188,16 @@ void Trade::Complete()
     // Save transactions as XML.
     tinyxml2::XMLDocument tradeDoc;
 
-    auto* player1 = tradeDoc.NewElement("PlayerA");
-    auto* player2 = tradeDoc.NewElement("PlayerB");
+    auto* root = tradeDoc.NewElement("obj");
+    auto* player1 = root.NewElement("PlayerA");
+    auto* player2 = root.NewElement("PlayerB");
 
     // Test stuff
     int p1Coins = characterA->GetCoins() - m_CoinsA + m_CoinsB;
     int p2Coins = characterB->GetCoins() - m_CoinsB + m_CoinsA;
 
-    Game::logger->Log("TradingManager", "Checking coins A:(%llu) <-> B:(%llu)\n", p1Coins, p2Coins);
+    Game::logger->Log("TradingManager", "----------------------------- A:(%llu) <-> B:(%llu)\n", characterA->GetCoins(), characterB->GetCoins());
+    Game::logger->Log("TradingManager", "----------------------------- A:(%llu) <-> B:(%llu)\n", m_CoinsA, m_CoinsB);
 
     // unordered_map<lot, count>
     std::unordered_map<uint32_t, uint32_t> p1Items = {{1, 2}, {3, 4}}; // example lots
@@ -239,7 +241,7 @@ void Trade::Complete()
     // Append data to DB table.
     auto stmt = Database::CreatePreppedStmt("INSERT INTO trade_logs (id, parA, parB, transaction) VALUES (?, ?, ?, ?)");
     stmt->setUInt(1, m_TradeId);
-    stmt->setUInt(2, characterB->GetID());
+    stmt->setUInt(2, characterA->GetID());
     stmt->setUInt(3, characterB->GetID());
     stmt->setString(4, printerValue);
     stmt->execute();
