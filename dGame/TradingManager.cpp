@@ -238,13 +238,13 @@ void Trade::Complete()
     // Append data to DB table.
     std::cout << printerValue;
 
-    for (const auto i: m_ItemsA) {
-      std::cout << i << ' ';
+    for (const auto& i: m_ItemsA) {
+      std::cout << i.itemLot << ' ';
       std::cout << "\n";
     }
 
-    for (const auto i: m_ItemsB) {
-      std::cout << i << ' ';
+    for (const auto& i: m_ItemsB) {
+      std::cout << i.itemLot << ' ';
       std::cout << "\n";
     }
 
