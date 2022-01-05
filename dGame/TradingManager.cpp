@@ -152,6 +152,10 @@ void Trade::Complete()
 
     if (inventoryA == nullptr || inventoryB == nullptr || characterA == nullptr || characterB == nullptr || missionsA == nullptr || missionsB == nullptr) return;
 
+    // Store the previous coin count. Stupid vairables.
+    int64_t beforeA = characterA->GetCoins();
+    int64_t beforeB = characterB->GetCoins();
+
     characterA->SetCoins(characterA->GetCoins() - m_CoinsA + m_CoinsB, LOOT_SOURCE_TRADE);
     characterB->SetCoins(characterB->GetCoins() - m_CoinsB + m_CoinsA, LOOT_SOURCE_TRADE);
 
@@ -193,8 +197,8 @@ void Trade::Complete()
     auto* player2 = root->InsertNewChildElement("PlayerB");
 
     // Test stuff
-    int64_t p1Coins = characterA->GetCoins() - m_CoinsA + m_CoinsB;
-    int64_t p2Coins = characterB->GetCoins() - m_CoinsB + m_CoinsA;
+    int64_t p1Coins = characterA->GetCoins() - beforeA();
+    int64_t p2Coins = characterB->GetCoins() - beforeB();
 
     Game::logger->Log("TradingManager", "----------------------------- A:(%llu) <-> B:(%llu)\n", characterA->GetCoins(), characterB->GetCoins());
     Game::logger->Log("TradingManager", "----------------------------- A:(%llu) <-> B:(%llu)\n", m_CoinsA + m_CoinsB, m_CoinsB + m_CoinsA);
