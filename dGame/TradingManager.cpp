@@ -200,37 +200,35 @@ void Trade::Complete()
     int64_t p1Coins = characterA->GetCoins() - beforeA;
     int64_t p2Coins = characterB->GetCoins() - beforeB;
 
-    Game::logger->Log("TradingManager", "----------------------------- A:(%llu) <-> B:(%llu)\n", p1Coins, p2Coins);
+    Game::logger->Log("TradingManager", "----------------------------- A:(%lld) <-> B:(%lld)\n", p1Coins, p2Coins);
 
-    // unordered_map<lot, count>
-    std::unordered_map<uint32_t, uint32_t> p1Items = {{1, 2}, {3, 4}}; // example lots
-    std::unordered_map<uint32_t, uint32_t> p2Items = {{5, 6}, {7, 8}}; // example lots
 
-    {
+
+    { // Build Player 1's XML
       auto* coins = player1->InsertNewChildElement("coins");
       coins->SetAttribute("amount", std::to_string(p1Coins).c_str());
 
       auto* items = player1->InsertNewChildElement("items");
 
-      for (const auto tradeItem : p1Items) {
+      for (const auto tradeItem : m_ItemsA) {
         auto* item = items->InsertNewChildElement("item");
 
-        item->SetAttribute("id", tradeItem.first);
-        item->SetAttribute("count", tradeItem.second);
+        item->SetAttribute("id", tradeItem.itemLot);
+        item->SetAttribute("count", tradeItem.itemCount);
       }
     }
 
-    {
+    { // Build Player 2's XML
       auto* coins = player2->InsertNewChildElement("coins");
       coins->SetAttribute("amount", std::to_string(p2Coins).c_str());
 
       auto* items = player2->InsertNewChildElement("items");
 
-      for (const auto tradeItem : p2Items) {
+      for (const auto tradeItem : m_ItemsB) {
         auto* item = items->InsertNewChildElement("item");
 
-        item->SetAttribute("id", tradeItem.first);
-        item->SetAttribute("count", tradeItem.second);
+        item->SetAttribute("id", tradeItem.itemLot);
+        item->SetAttribute("count", tradeItem.itemCount);
       }
     }
 
