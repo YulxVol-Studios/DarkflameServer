@@ -235,7 +235,7 @@ void Trade::Complete()
         }
       }
     } catch (exception& e) {
-      std::cout << "Error: " e.what() << "\n";
+      std::cout << "Error: " << e.what() << "\n";
     }
 
     tradeDoc.InsertEndChild(TradeRoot);
