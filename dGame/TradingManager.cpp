@@ -206,15 +206,15 @@ void Trade::Complete()
       auto* coins = player1->InsertNewChildElement("coins");
       coins->SetAttribute("amount", std::to_string(p1Coins).c_str());
 
-      Game::logger->Log("TradingManager", "----- Attempting to check items.");
+      Game::logger->Log("TradingManager", "----- Attempting to check items.\n");
 
       auto* items = player1->InsertNewChildElement("items");
       for (const auto& tradeItem : m_ItemsA) {
         auto* item = items->InsertNewChildElement("item");
-        Game::logger->Log("TradingManager", "----- Passing through loop 1.");
+        Game::logger->Log("TradingManager", "----- Passing through loop 1.\n");
 
-        Game::logger->Log("TradeDebug", m_ItemsA[0].itemLot);
-        Game::logger->Log("TradeDebug", m_ItemsA[0].itemCount);
+        Game::logger->Log("TradeDebug", tradeItem.itemLot);
+        Game::logger->Log("TradeDebug", tradeItem.itemCount);
         item->SetAttribute("id", tradeItem.itemLot);
         item->SetAttribute("count", tradeItem.itemCount);
       }
