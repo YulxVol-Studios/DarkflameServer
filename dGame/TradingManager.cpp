@@ -192,7 +192,7 @@ void Trade::Complete()
     // Save transactions as XML.
     tinyxml2::XMLDocument tradeDoc;
 
-    auto* root = tradeDoc.NewElement("obj");
+    auto* root = tradeDoc->InsertNewChildElement("Trade");
     auto* player1 = root->InsertNewChildElement("PlayerA");
     auto* player2 = root->InsertNewChildElement("PlayerB");
 
@@ -200,8 +200,6 @@ void Trade::Complete()
     int64_t p1Coins = characterA->GetCoins() - beforeA;
     int64_t p2Coins = characterB->GetCoins() - beforeB;
 
-    Game::logger->Log("TradingManager", "----------------------------- A:(%llu) <-> B:(%llu)\n", characterA->GetCoins(), characterB->GetCoins());
-    Game::logger->Log("TradingManager", "----------------------------- A:(%llu) <-> B:(%llu)\n", m_CoinsA + m_CoinsB, m_CoinsB + m_CoinsA);
     Game::logger->Log("TradingManager", "----------------------------- A:(%llu) <-> B:(%llu)\n", p1Coins, p2Coins);
 
     // unordered_map<lot, count>
