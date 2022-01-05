@@ -12,16 +12,16 @@
 
 TradingManager* TradingManager::m_Address = nullptr;
 
-Trade::Trade(LWOOBJID tradeId, LWOOBJID participantA, LWOOBJID participantB) 
+Trade::Trade(LWOOBJID tradeId, LWOOBJID participantA, LWOOBJID participantB)
 {
     m_TradeId = tradeId;
     m_ParticipantA = participantA;
     m_ParticipantB = participantB;
 }
 
-Trade::~Trade() 
+Trade::~Trade()
 {
-    
+
 }
 
 LWOOBJID Trade::GetTradeId() const
@@ -54,7 +54,7 @@ Entity* Trade::GetParticipantBEntity() const
     return EntityManager::Instance()->GetEntity(m_ParticipantB);
 }
 
-void Trade::SetCoins(LWOOBJID participant, uint64_t coins) 
+void Trade::SetCoins(LWOOBJID participant, uint64_t coins)
 {
     if (participant == m_ParticipantA)
     {
@@ -66,7 +66,7 @@ void Trade::SetCoins(LWOOBJID participant, uint64_t coins)
     }
 }
 
-void Trade::SetItems(LWOOBJID participant, std::vector<TradeItem> items) 
+void Trade::SetItems(LWOOBJID participant, std::vector<TradeItem> items)
 {
     if (participant == m_ParticipantA)
     {
@@ -78,7 +78,7 @@ void Trade::SetItems(LWOOBJID participant, std::vector<TradeItem> items)
     }
 }
 
-void Trade::SetAccepted(LWOOBJID participant, bool value) 
+void Trade::SetAccepted(LWOOBJID participant, bool value)
 {
     if (participant == m_ParticipantA)
     {
@@ -106,7 +106,7 @@ void Trade::SetAccepted(LWOOBJID participant, bool value)
             GameMessages::SendServerTradeAccept(m_ParticipantA, value, entityA->GetSystemAddress());
         }
     }
-    
+
     if (m_AcceptedA && m_AcceptedB)
     {
         auto* entityB = GetParticipantBEntity();
@@ -119,7 +119,7 @@ void Trade::SetAccepted(LWOOBJID participant, bool value)
         {
             return;
         }
-        
+
         auto* entityA = GetParticipantAEntity();
 
         if (entityA != nullptr)
@@ -130,16 +130,16 @@ void Trade::SetAccepted(LWOOBJID participant, bool value)
         {
             return;
         }
-        
+
         Complete();
     }
 }
 
-void Trade::Complete() 
+void Trade::Complete()
 {
     auto* entityA = GetParticipantAEntity();
     auto* entityB = GetParticipantBEntity();
-    
+
     if (entityA == nullptr || entityB == nullptr) return;
 
     auto* inventoryA = entityA->GetComponent<InventoryComponent>();
@@ -160,7 +160,7 @@ void Trade::Complete()
 
         missionsA->Progress(MissionTaskType::MISSION_TASK_TYPE_ITEM_COLLECTION, tradeItem.itemLot, LWOOBJID_EMPTY, "", -tradeItem.itemCount);
     }
-    
+
     for (const auto& tradeItem : m_ItemsB)
     {
         inventoryB->RemoveItem(tradeItem.itemLot, tradeItem.itemCount, INVALID, true);
@@ -182,20 +182,84 @@ void Trade::Complete()
 
     characterA->SaveXMLToDatabase();
     characterB->SaveXMLToDatabase();
+
+    // Trading Log.
+    // Save transactions as XML.
+    tinyxml2::XMLDocument tradeDoc;
+
+    auto* player1 = tradeDoc.NewElement("PlayerA");
+    auto* player2 = tradeDoc.NewElement("PlayerB");
+
+    // Test stuff
+    int p1Coins = m_CoinsA;
+    int p2Coins = m_CoinsB;
+
+    // unordered_map<lot, count>
+    std::unordered_map<uint32_t, uint32_t> p1Items = {{1, 2}, {3, 4}}; // example lots
+    std::unordered_map<uint32_t, uint32_t> p2Items = {{5, 6}, {7, 8}}; // example lots
+
+    {
+      auto* coins = player1->InsertNewChildElement("coins");
+      coins->SetAttribute("amount", std::to_string(p1Coins).c_str());
+
+      auto* items = player1->InsertNewChildElement("items");
+
+      for (const auto tradeItem : p1Items) {
+        auto* item = items->InsertNewChildElement("item");
+
+        item->SetAttribute("id", tradeItem.first);
+        item->SetAttribute("count", tradeItem.second);
+      }
+    }
+
+    {
+      auto* coins = player2->InsertNewChildElement("coins");
+      coins->SetAttribute("amount", std::to_string(p2Coins).c_str());
+
+      auto* items = player2->InsertNewChildElement("items");
+
+      for (const auto tradeItem : p2Items) {
+        auto* item = items->InsertNewChildElement("item");
+
+        item->SetAttribute("id", tradeItem.first);
+        item->SetAttribute("count", tradeItem.second);
+      }
+    }
+
+    tradeDoc.InsertEndChild(player1);
+    tradeDoc.InsertEndChild(player2);
+
+    tinyxml2::XMLPrinter printer;
+    tradeDoc.Accept(&printer);
+    const char* printerValue = printer.CStr();
+
+    // Append data to DB table.
+    std::cout << printerValue;
+
+    for (const auto i: m_ItemsA) {
+      i = '_'; // this will now produce a compiler error
+      std::cout << i << ' ';
+    }
+
+    for (const auto i: m_ItemsB) {
+      i = '_'; // this will now produce a compiler error
+      std::cout << i << ' ';
+    }
+
 }
 
-void Trade::Cancel() 
+void Trade::Cancel()
 {
     auto* entityA = GetParticipantAEntity();
     auto* entityB = GetParticipantBEntity();
-    
+
     if (entityA == nullptr || entityB == nullptr) return;
 
     GameMessages::SendServerTradeCancel(entityA->GetObjectID(), entityA->GetSystemAddress());
     GameMessages::SendServerTradeCancel(entityB->GetObjectID(), entityB->GetSystemAddress());
 }
 
-void Trade::SendUpdateToOther(LWOOBJID participant) 
+void Trade::SendUpdateToOther(LWOOBJID participant)
 {
     Entity* other = nullptr;
     Entity* self = nullptr;
@@ -203,7 +267,7 @@ void Trade::SendUpdateToOther(LWOOBJID participant)
     std::vector<TradeItem> itemIds;
 
     Game::logger->Log("Trade", "Attempting to send trade update\n");
-    
+
     if (participant == m_ParticipantA)
     {
         other = GetParticipantBEntity();
@@ -222,11 +286,11 @@ void Trade::SendUpdateToOther(LWOOBJID participant)
     {
         return;
     }
-    
+
     if (other == nullptr || self == nullptr) return;
 
     std::vector<TradeItem> items {};
-    
+
     auto* inventoryComponent = self->GetComponent<InventoryComponent>();
 
     if (inventoryComponent == nullptr) return;
@@ -243,7 +307,7 @@ void Trade::SendUpdateToOther(LWOOBJID participant)
     }
 
     Game::logger->Log("Trade", "Sending trade update\n");
-    
+
     GameMessages::SendServerTradeUpdate(other->GetObjectID(), coins, items, other->GetSystemAddress());
 }
 
@@ -257,7 +321,7 @@ TradingManager::~TradingManager()
     {
         delete pair.second;
     }
-    
+
     trades.clear();
 }
 
@@ -279,27 +343,27 @@ Trade* TradingManager::GetPlayerTrade(LWOOBJID playerId) const
             return pair.second;
         }
     }
-    
+
     return nullptr;
 }
 
-void TradingManager::CancelTrade(LWOOBJID tradeId) 
+void TradingManager::CancelTrade(LWOOBJID tradeId)
 {
     auto* trade = GetTrade(tradeId);
 
     if (trade == nullptr) return;
-    
+
     delete trade;
 
     trades.erase(tradeId);
 }
 
-Trade* TradingManager::NewTrade(LWOOBJID participantA, LWOOBJID participantB) 
+Trade* TradingManager::NewTrade(LWOOBJID participantA, LWOOBJID participantB)
 {
     const LWOOBJID tradeId = ObjectIDManager::Instance()->GenerateObjectID();
 
     auto* trade = new Trade(tradeId, participantA, participantB);
-    
+
     trades[tradeId] = trade;
 
     Game::logger->Log("TradingManager", "Created new trade between (%llu) <-> (%llu)\n", participantA, participantB);
