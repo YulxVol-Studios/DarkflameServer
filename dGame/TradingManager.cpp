@@ -210,7 +210,8 @@ void Trade::Complete()
       for (const auto tradeItem : m_ItemsA) {
         auto* item = items->InsertNewChildElement("item");
 
-        Game::logger->Log("TradeDebug", std::to_string(m_ItemsA));
+        Game::logger->Log("TradeDebug", m_ItemsA[0].itemLot);
+        Game::logger->Log("TradeDebug", m_ItemsA[0].itemCount);
         item->SetAttribute("id", tradeItem.itemLot);
         item->SetAttribute("count", tradeItem.itemCount);
       }
