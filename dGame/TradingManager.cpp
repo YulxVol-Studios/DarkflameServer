@@ -240,9 +240,9 @@ void Trade::Complete()
 
     // Append data to DB table.
     auto stmt = Database::CreatePreppedStmt("INSERT INTO trade_logs (id, parA, parB, transaction) VALUES (?, ?, ?, ?)");
-    stmt->setUInt(1, GetTradeId());
-    stmt->setUInt(2, characterA->GetID());
-    stmt->setUInt(3, characterB->GetID());
+    stmt->setUInt64(1, GetTradeId());
+    stmt->setUInt64(2, characterA->GetID());
+    stmt->setUInt64(3, characterB->GetID());
     stmt->setString(4, printerValue);
     stmt->execute();
     delete stmt;
