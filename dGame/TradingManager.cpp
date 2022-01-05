@@ -193,11 +193,12 @@ void Trade::Complete()
     auto* player2 = root->InsertNewChildElement("PlayerB");
 
     // Test stuff
-    int p1Coins = characterA->GetCoins() - m_CoinsA + m_CoinsB;
-    int p2Coins = characterB->GetCoins() - m_CoinsB + m_CoinsA;
+    int64_t p1Coins = characterA->GetCoins() - m_CoinsA + m_CoinsB;
+    int64_t p2Coins = characterB->GetCoins() - m_CoinsB + m_CoinsA;
 
     Game::logger->Log("TradingManager", "----------------------------- A:(%llu) <-> B:(%llu)\n", characterA->GetCoins(), characterB->GetCoins());
     Game::logger->Log("TradingManager", "----------------------------- A:(%llu) <-> B:(%llu)\n", m_CoinsA + m_CoinsB, m_CoinsB + m_CoinsA);
+    Game::logger->Log("TradingManager", "----------------------------- A:(%llu) <-> B:(%llu)\n", p1Coins, p2Coins);
 
     // unordered_map<lot, count>
     std::unordered_map<uint32_t, uint32_t> p1Items = {{1, 2}, {3, 4}}; // example lots
