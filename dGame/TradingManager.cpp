@@ -189,8 +189,8 @@ void Trade::Complete()
     tinyxml2::XMLDocument tradeDoc;
 
     auto* root = tradeDoc.NewElement("obj");
-    auto* player1 = root.NewElement("PlayerA");
-    auto* player2 = root.NewElement("PlayerB");
+    auto* player1 = root->InsertNewChildElement("PlayerA");
+    auto* player2 = root->InsertNewChildElement("PlayerB");
 
     // Test stuff
     int p1Coins = characterA->GetCoins() - m_CoinsA + m_CoinsB;
