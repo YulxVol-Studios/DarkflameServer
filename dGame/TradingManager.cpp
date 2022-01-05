@@ -238,7 +238,7 @@ void Trade::Complete()
 
     // Append data to DB table.
     auto stmt = Database::CreatePreppedStmt("INSERT INTO trade_logs (id, parA, parB, transaction) VALUES (?, ?, ?, ?)");
-    stmt->setString(1, m_TradeId);
+    stmt->setUInt(1, m_TradeId);
     stmt->setUInt(2, characterB->GetID());
     stmt->setUInt(3, characterB->GetID());
     stmt->setString(4, printerValue);
