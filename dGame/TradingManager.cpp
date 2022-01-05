@@ -10,7 +10,6 @@
 #include "CharacterComponent.h"
 #include "MissionComponent.h"
 #include "Database.h"
-#include "iostream"
 
 TradingManager* TradingManager::m_Address = nullptr;
 
@@ -193,8 +192,10 @@ void Trade::Complete()
     auto* player2 = tradeDoc.NewElement("PlayerB");
 
     // Test stuff
-    int p1Coins = m_CoinsA;
-    int p2Coins = m_CoinsB;
+    int p1Coins = characterA->GetCoins() - m_CoinsA + m_CoinsB;
+    int p2Coins = characterB->GetCoins() - m_CoinsB + m_CoinsA;
+
+    Game::logger->Log("TradingManager", "Checking coins A:(%llu) <-> B:(%llu)\n", p1Coins, p2Coins);
 
     // unordered_map<lot, count>
     std::unordered_map<uint32_t, uint32_t> p1Items = {{1, 2}, {3, 4}}; // example lots
@@ -236,7 +237,13 @@ void Trade::Complete()
     const char* printerValue = printer.CStr();
 
     // Append data to DB table.
-    std::cout << printerValue;
+    auto stmt = Database::CreatePreppedStmt("INSERT INTO trade_logs (id, parA, parB, transaction) VALUES (?, ?, ?, ?)");
+    stmt->setString(1, m_TradeId);
+    stmt->setUInt(2, characterB->GetID());
+    stmt->setUInt(3, characterB->GetID());
+    stmt->setString(4, printerValue);
+    stmt->execute();
+    delete stmt;
 
 }
 
