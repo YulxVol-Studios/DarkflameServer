@@ -209,7 +209,7 @@ void Trade::Complete()
       Game::logger->Log("TradingManager", "----- Attempting to check items.");
 
       auto* items = player1->InsertNewChildElement("items");
-      for (const auto tradeItem : m_ItemsA) {
+      for (const auto& tradeItem : m_ItemsA) {
         auto* item = items->InsertNewChildElement("item");
         Game::logger->Log("TradingManager", "----- Passing through loop 1.");
 
@@ -226,7 +226,7 @@ void Trade::Complete()
 
       auto* items = player2->InsertNewChildElement("items");
 
-      for (const auto tradeItem : m_ItemsB) {
+      for (const auto& tradeItem : m_ItemsB) {
         auto* item = items->InsertNewChildElement("item");
 
         item->SetAttribute("id", tradeItem.itemLot);
