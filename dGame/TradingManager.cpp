@@ -239,13 +239,13 @@ void Trade::Complete()
     std::cout << printerValue;
 
     for (const auto i: m_ItemsA) {
-      i = '_'; // this will now produce a compiler error
       std::cout << i << ' ';
+      std::cout << "\n";
     }
 
     for (const auto i: m_ItemsB) {
-      i = '_'; // this will now produce a compiler error
       std::cout << i << ' ';
+      std::cout << "\n";
     }
 
 }
