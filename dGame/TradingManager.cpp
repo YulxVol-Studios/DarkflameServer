@@ -192,9 +192,9 @@ void Trade::Complete()
     // Save transactions as XML.
     tinyxml2::XMLDocument tradeDoc;
 
-    auto* root = tradeDoc->InsertNewChildElement("Trade");
-    auto* player1 = root->InsertNewChildElement("PlayerA");
-    auto* player2 = root->InsertNewChildElement("PlayerB");
+    auto* root = tradeDoc.InsertNewChildElement("Trade");
+    auto* player1 = root.InsertNewChildElement("PlayerA");
+    auto* player2 = root.InsertNewChildElement("PlayerB");
 
     // Test stuff
     int64_t p1Coins = characterA->GetCoins() - beforeA;
