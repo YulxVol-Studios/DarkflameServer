@@ -202,17 +202,15 @@ void Trade::Complete()
 
     Game::logger->Log("TradingManager", "----------------------------- A:(%lld) <-> B:(%lld)\n", p1Coins, p2Coins);
 
-
-
     { // Build Player 1's XML
       auto* coins = player1->InsertNewChildElement("coins");
       coins->SetAttribute("amount", std::to_string(p1Coins).c_str());
 
       auto* items = player1->InsertNewChildElement("items");
-
       for (const auto tradeItem : m_ItemsA) {
         auto* item = items->InsertNewChildElement("item");
 
+        Game::logger->Log("TradeDebug", std::to_string(m_ItemsA));
         item->SetAttribute("id", tradeItem.itemLot);
         item->SetAttribute("count", tradeItem.itemCount);
       }
@@ -239,11 +237,10 @@ void Trade::Complete()
     const char* printerValue = printer.CStr();
 
     // Append data to DB table.
-    auto stmt = Database::CreatePreppedStmt("INSERT INTO trade_logs (id, parA, parB, transaction) VALUES (?, ?, ?, ?)");
-    stmt->setUInt64(1, GetTradeId());
-    stmt->setUInt64(2, characterA->GetID());
-    stmt->setUInt64(3, characterB->GetID());
-    stmt->setString(4, printerValue);
+    auto stmt = Database::CreatePreppedStmt("INSERT INTO trade_logs (parA, parB, transaction) VALUES (?, ?, ?)");
+    stmt->setUInt64(1, characterA->GetID());
+    stmt->setUInt64(2, characterB->GetID());
+    stmt->setString(3, printerValue);
     stmt->execute();
     delete stmt;
 
