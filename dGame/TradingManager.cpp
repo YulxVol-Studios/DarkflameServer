@@ -10,7 +10,7 @@
 #include "CharacterComponent.h"
 #include "MissionComponent.h"
 #include "Database.h"
-#include "stdio"
+#include "iostream"
 
 TradingManager* TradingManager::m_Address = nullptr;
 
