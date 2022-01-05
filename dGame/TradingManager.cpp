@@ -10,6 +10,7 @@
 #include "CharacterComponent.h"
 #include "MissionComponent.h"
 #include "Database.h"
+#include "iostream"
 
 TradingManager* TradingManager::m_Address = nullptr;
 
@@ -201,37 +202,40 @@ void Trade::Complete()
     int64_t p2Coins = characterB->GetCoins() - beforeB;
 
     Game::logger->Log("TradingManager", "----------------------------- A:(%lld) <-> B:(%lld)\n", p1Coins, p2Coins);
+    try {
+      { // Build Player 1's XML
+        auto* coins = player1->InsertNewChildElement("coins");
+        coins->SetAttribute("amount", std::to_string(p1Coins).c_str());
 
-    { // Build Player 1's XML
-      auto* coins = player1->InsertNewChildElement("coins");
-      coins->SetAttribute("amount", std::to_string(p1Coins).c_str());
+        Game::logger->Log("TradingManager", "----- Attempting to check items.\n");
 
-      Game::logger->Log("TradingManager", "----- Attempting to check items.\n");
+        auto* items = player1->InsertNewChildElement("items");
+        for (const auto& tradeItem : m_ItemsA) {
+          auto* item = items->InsertNewChildElement("item");
+          Game::logger->Log("TradingManager", "----- Passing through loop 1.\n");
 
-      auto* items = player1->InsertNewChildElement("items");
-      for (const auto& tradeItem : m_ItemsA) {
-        auto* item = items->InsertNewChildElement("item");
-        Game::logger->Log("TradingManager", "----- Passing through loop 1.\n");
-
-        Game::logger->Log("TradeDebug", "Item lot: $lu\n", tradeItem.itemLot);
-        Game::logger->Log("TradeDebug", "Item count: $lu\n", tradeItem.itemCount);
-        item->SetAttribute("id", tradeItem.itemLot);
-        item->SetAttribute("count", tradeItem.itemCount);
+          Game::logger->Log("TradeDebug", "Item lot: $lu \n", tradeItem.itemLot);
+          Game::logger->Log("TradeDebug", "Item count: $lu \n", tradeItem.itemCount);
+          item->SetAttribute("id", tradeItem.itemLot);
+          item->SetAttribute("count", tradeItem.itemCount);
+        }
       }
-    }
 
-    { // Build Player 2's XML
-      auto* coins = player2->InsertNewChildElement("coins");
-      coins->SetAttribute("amount", std::to_string(p2Coins).c_str());
+      { // Build Player 2's XML
+        auto* coins = player2->InsertNewChildElement("coins");
+        coins->SetAttribute("amount", std::to_string(p2Coins).c_str());
 
-      auto* items = player2->InsertNewChildElement("items");
+        auto* items = player2->InsertNewChildElement("items");
 
-      for (const auto& tradeItem : m_ItemsB) {
-        auto* item = items->InsertNewChildElement("item");
+        for (const auto& tradeItem : m_ItemsB) {
+          auto* item = items->InsertNewChildElement("item");
 
-        item->SetAttribute("id", tradeItem.itemLot);
-        item->SetAttribute("count", tradeItem.itemCount);
+          item->SetAttribute("id", tradeItem.itemLot);
+          item->SetAttribute("count", tradeItem.itemCount);
+        }
       }
+    } catch (exception& e) {
+      std::cout << "Error: " e.what() << "\n";
     }
 
     tradeDoc.InsertEndChild(TradeRoot);
