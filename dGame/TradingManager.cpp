@@ -161,8 +161,8 @@ void Trade::Complete()
 
     for (const auto& tradeItem : m_ItemsA)
     {
-        Game::logger->Log("TradeDebug", "A: Item lot: $lu\n", tradeItem.itemLot);
-        Game::logger->Log("TradeDebug", "A: Item count: $lu\n", tradeItem.itemCount);
+        Game::logger->Log("TradeDebug", "A: Item lot: %lu\n", tradeItem.itemLot);
+        Game::logger->Log("TradeDebug", "A: Item count: %lu\n", tradeItem.itemCount);
         inventoryA->RemoveItem(tradeItem.itemLot, tradeItem.itemCount, INVALID, true);
 
         missionsA->Progress(MissionTaskType::MISSION_TASK_TYPE_ITEM_COLLECTION, tradeItem.itemLot, LWOOBJID_EMPTY, "", -tradeItem.itemCount);
@@ -170,8 +170,8 @@ void Trade::Complete()
 
     for (const auto& tradeItem : m_ItemsB)
     {
-        Game::logger->Log("TradeDebug", "B: Item lot: $lu\n", tradeItem.itemLot);
-        Game::logger->Log("TradeDebug", "B: Item count: $lu\n", tradeItem.itemCount);
+        Game::logger->Log("TradeDebug", "B: Item lot: %lu\n", tradeItem.itemLot);
+        Game::logger->Log("TradeDebug", "B: Item count: %lu\n", tradeItem.itemCount);
         inventoryB->RemoveItem(tradeItem.itemLot, tradeItem.itemCount, INVALID, true);
 
         missionsB->Progress(MissionTaskType::MISSION_TASK_TYPE_ITEM_COLLECTION, tradeItem.itemLot, LWOOBJID_EMPTY, "", -tradeItem.itemCount);
