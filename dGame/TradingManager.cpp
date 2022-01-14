@@ -159,10 +159,15 @@ void Trade::Complete()
     characterA->SetCoins(characterA->GetCoins() - m_CoinsA + m_CoinsB, LOOT_SOURCE_TRADE);
     characterB->SetCoins(characterB->GetCoins() - m_CoinsB + m_CoinsA, LOOT_SOURCE_TRADE);
 
+    // Trading Log.
+    // Save transactions as XML.
+    tinyxml2::XMLDocument tradeDoc;
+    auto* TradeRoot = tradeDoc.NewElement("Trade");
+    auto* player1 = TradeRoot->InsertNewChildElement("PlayerA");
+    auto* player2 = TradeRoot->InsertNewChildElement("PlayerB");
+
     for (const auto& tradeItem : m_ItemsA)
     {
-        Game::logger->Log("TradeDebug", "A: Item lot: %lu\n", tradeItem.itemLot);
-        Game::logger->Log("TradeDebug", "A: Item count: %lu\n", tradeItem.itemCount);
         inventoryA->RemoveItem(tradeItem.itemLot, tradeItem.itemCount, INVALID, true);
 
         missionsA->Progress(MissionTaskType::MISSION_TASK_TYPE_ITEM_COLLECTION, tradeItem.itemLot, LWOOBJID_EMPTY, "", -tradeItem.itemCount);
@@ -170,20 +175,38 @@ void Trade::Complete()
 
     for (const auto& tradeItem : m_ItemsB)
     {
-        Game::logger->Log("TradeDebug", "B: Item lot: %lu\n", tradeItem.itemLot);
-        Game::logger->Log("TradeDebug", "B: Item count: %lu\n", tradeItem.itemCount);
         inventoryB->RemoveItem(tradeItem.itemLot, tradeItem.itemCount, INVALID, true);
 
         missionsB->Progress(MissionTaskType::MISSION_TASK_TYPE_ITEM_COLLECTION, tradeItem.itemLot, LWOOBJID_EMPTY, "", -tradeItem.itemCount);
     }
 
+    // Calculated coin difference.
+    int64_t p1Coins = characterA->GetCoins() - beforeA;
+    int64_t p2Coins = characterB->GetCoins() - beforeB;
+
     for (const auto& tradeItem : m_ItemsA)
     {
+        auto* itemsA = player2->InsertNewChildElement("items");
+        itemsA->SetAttribute("lot", tradeItem.itemLot);
+        itemsA->SetAttribute("count", tradeItem.itemCount);
+
+        auto* coinsA = player1->InsertNewChildElement("coins");
+        coinsA->SetAttribute("amount", std::to_string(p2Coins).c_str());
+
+
         inventoryB->AddItem(tradeItem.itemLot, tradeItem.itemCount);
     }
 
     for (const auto& tradeItem : m_ItemsB)
     {
+        auto* itemsB = player1->InsertNewChildElement("items");
+        itemsB->SetAttribute("lot", tradeItem.itemLot);
+        itemsB->SetAttribute("count", tradeItem.itemCount);
+
+        auto* coinsB = player2->InsertNewChildElement("coins");
+        coinsB->SetAttribute("amount", std::to_string(p1Coins).c_str());
+
+
         inventoryA->AddItem(tradeItem.itemLot, tradeItem.itemCount);
     }
 
@@ -192,51 +215,7 @@ void Trade::Complete()
     characterA->SaveXMLToDatabase();
     characterB->SaveXMLToDatabase();
 
-    // Trading Log.
-    // Save transactions as XML.
-    tinyxml2::XMLDocument tradeDoc;
-
-    auto* TradeRoot = tradeDoc.NewElement("Trade");
-    auto* player1 = TradeRoot->InsertNewChildElement("PlayerA");
-    auto* player2 = TradeRoot->InsertNewChildElement("PlayerB");
-
-    // Test stuff
-    int64_t p1Coins = characterA->GetCoins() - beforeA;
-    int64_t p2Coins = characterB->GetCoins() - beforeB;
-
     Game::logger->Log("TradingManager", "----------------------------- A:(%lld) <-> B:(%lld)\n", p1Coins, p2Coins);
-
-    { // Build Player 1's XML
-      auto* coins = player1->InsertNewChildElement("coins");
-      coins->SetAttribute("amount", std::to_string(p1Coins).c_str());
-
-      Game::logger->Log("TradingManager", "----- Attempting to check items.\n");
-
-      auto* items = player1->InsertNewChildElement("items");
-      //for (const auto& tradeItem : m_ItemsA) {
-      //  auto* item = items->InsertNewChildElement("item");
-      //  Game::logger->Log("TradingManager", "----- Passing through loop 1.\n");
-
-      //  Game::logger->Log("TradeDebug", "Item lot: $lu\n", tradeItem.itemLot);
-      //  Game::logger->Log("TradeDebug", "Item count: $lu\n", tradeItem.itemCount);
-      //  item->SetAttribute("id", tradeItem.itemLot);
-      //  item->SetAttribute("count", tradeItem.itemCount);
-      //}
-    }
-
-    { // Build Player 2's XML
-      auto* coins = player2->InsertNewChildElement("coins");
-      coins->SetAttribute("amount", std::to_string(p2Coins).c_str());
-
-      auto* items = player2->InsertNewChildElement("items");
-
-      //for (const auto& tradeItem : m_ItemsB) {
-      //  auto* item = items->InsertNewChildElement("item");
-      //
-      //  item->SetAttribute("id", tradeItem.itemLot);
-      //  item->SetAttribute("count", tradeItem.itemCount);
-      //}
-    }
 
     tradeDoc.InsertEndChild(TradeRoot);
 
