@@ -184,15 +184,19 @@ void Trade::Complete()
     int64_t p1Coins = characterA->GetCoins() - beforeA;
     int64_t p2Coins = characterB->GetCoins() - beforeB;
 
+    { // Coin XML Builder.
+        auto* coinsA = player1->InsertNewChildElement("coins");
+        coinsA->SetAttribute("amount", std::to_string(p2Coins).c_str());
+
+        auto* coinsB = player2->InsertNewChildElement("coins");
+        coinsB->SetAttribute("amount", std::to_string(p1Coins).c_str());
+    }
+
     for (const auto& tradeItem : m_ItemsA)
     {
         auto* itemsA = player2->InsertNewChildElement("items");
         itemsA->SetAttribute("lot", tradeItem.itemLot);
         itemsA->SetAttribute("count", tradeItem.itemCount);
-
-        auto* coinsA = player1->InsertNewChildElement("coins");
-        coinsA->SetAttribute("amount", std::to_string(p2Coins).c_str());
-
 
         inventoryB->AddItem(tradeItem.itemLot, tradeItem.itemCount);
     }
@@ -202,10 +206,6 @@ void Trade::Complete()
         auto* itemsB = player1->InsertNewChildElement("items");
         itemsB->SetAttribute("lot", tradeItem.itemLot);
         itemsB->SetAttribute("count", tradeItem.itemCount);
-
-        auto* coinsB = player2->InsertNewChildElement("coins");
-        coinsB->SetAttribute("amount", std::to_string(p1Coins).c_str());
-
 
         inventoryA->AddItem(tradeItem.itemLot, tradeItem.itemCount);
     }
