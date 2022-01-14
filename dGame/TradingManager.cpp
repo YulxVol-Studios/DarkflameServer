@@ -215,8 +215,6 @@ void Trade::Complete()
     characterA->SaveXMLToDatabase();
     characterB->SaveXMLToDatabase();
 
-    Game::logger->Log("TradingManager", "----------------------------- A:(%lld) <-> B:(%lld)\n", p1Coins, p2Coins);
-
     tradeDoc.InsertEndChild(TradeRoot);
 
     tinyxml2::XMLPrinter printer;
