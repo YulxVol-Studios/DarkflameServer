@@ -161,8 +161,8 @@ void Trade::Complete()
 
     for (const auto& tradeItem : m_ItemsA)
     {
-        Game::logger->Log("TradeDebug", "Item lot: $lu\n", tradeItem.itemLot);
-        Game::logger->Log("TradeDebug", "Item count: $lu\n", tradeItem.itemCount);
+        Game::logger->Log("TradeDebug", "A: Item lot: $lu\n", tradeItem.itemLot);
+        Game::logger->Log("TradeDebug", "A: Item count: $lu\n", tradeItem.itemCount);
         inventoryA->RemoveItem(tradeItem.itemLot, tradeItem.itemCount, INVALID, true);
 
         missionsA->Progress(MissionTaskType::MISSION_TASK_TYPE_ITEM_COLLECTION, tradeItem.itemLot, LWOOBJID_EMPTY, "", -tradeItem.itemCount);
@@ -170,6 +170,8 @@ void Trade::Complete()
 
     for (const auto& tradeItem : m_ItemsB)
     {
+        Game::logger->Log("TradeDebug", "B: Item lot: $lu\n", tradeItem.itemLot);
+        Game::logger->Log("TradeDebug", "B: Item count: $lu\n", tradeItem.itemCount);
         inventoryB->RemoveItem(tradeItem.itemLot, tradeItem.itemCount, INVALID, true);
 
         missionsB->Progress(MissionTaskType::MISSION_TASK_TYPE_ITEM_COLLECTION, tradeItem.itemLot, LWOOBJID_EMPTY, "", -tradeItem.itemCount);
@@ -211,15 +213,15 @@ void Trade::Complete()
       Game::logger->Log("TradingManager", "----- Attempting to check items.\n");
 
       auto* items = player1->InsertNewChildElement("items");
-      for (const auto& tradeItem : m_ItemsA) {
-        auto* item = items->InsertNewChildElement("item");
-        Game::logger->Log("TradingManager", "----- Passing through loop 1.\n");
+      //for (const auto& tradeItem : m_ItemsA) {
+      //  auto* item = items->InsertNewChildElement("item");
+      //  Game::logger->Log("TradingManager", "----- Passing through loop 1.\n");
 
-        Game::logger->Log("TradeDebug", "Item lot: $lu\n", tradeItem.itemLot);
-        Game::logger->Log("TradeDebug", "Item count: $lu\n", tradeItem.itemCount);
-        item->SetAttribute("id", tradeItem.itemLot);
-        item->SetAttribute("count", tradeItem.itemCount);
-      }
+      //  Game::logger->Log("TradeDebug", "Item lot: $lu\n", tradeItem.itemLot);
+      //  Game::logger->Log("TradeDebug", "Item count: $lu\n", tradeItem.itemCount);
+      //  item->SetAttribute("id", tradeItem.itemLot);
+      //  item->SetAttribute("count", tradeItem.itemCount);
+      //}
     }
 
     { // Build Player 2's XML
@@ -228,12 +230,12 @@ void Trade::Complete()
 
       auto* items = player2->InsertNewChildElement("items");
 
-      for (const auto& tradeItem : m_ItemsB) {
-        auto* item = items->InsertNewChildElement("item");
-
-        item->SetAttribute("id", tradeItem.itemLot);
-        item->SetAttribute("count", tradeItem.itemCount);
-      }
+      //for (const auto& tradeItem : m_ItemsB) {
+      //  auto* item = items->InsertNewChildElement("item");
+      //
+      //  item->SetAttribute("id", tradeItem.itemLot);
+      //  item->SetAttribute("count", tradeItem.itemCount);
+      //}
     }
 
     tradeDoc.InsertEndChild(TradeRoot);
