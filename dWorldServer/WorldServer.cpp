@@ -72,6 +72,8 @@ namespace Game {
 	SystemAddress chatSysAddr;
 }
 
+std::unordered_map<int, bool> accIdBanList;
+
 bool chatDisabled = false;
 bool chatConnected = false;
 bool worldShutdownSequenceStarted = false;
@@ -218,6 +220,8 @@ int main(int argc, char** argv) {
 	int framesSinceLastUsersSave = 0;
 	int framesSinceLastSQLPing = 0;
 	int framesSinceLastUser = 0;
+	int framesSinceLastBanFetch = 0;
+	int framesSinceLastBanUpdate = 0;
 
 	const float maxPacketProcessingTime = 1.5f; //0.015f;
 	const int maxPacketsToProcess = 1024;
@@ -452,6 +456,45 @@ int main(int argc, char** argv) {
 			framesSinceLastSQLPing = 0;
 		}
 		else framesSinceLastSQLPing++;
+
+		// Custom Luplo - Update Ban List
+		if (framesSinceLastBanFetch > 500) {
+			// Clear the existing entries.
+			accIdBanList.clear();
+
+			// Query and store.
+			sql::PreparedStatement* stmt = Database::CreatePreppedStmt("SELECT id FROM accounts WHERE banned = 1;");
+			auto res = stmt->executeQuery();
+
+			// Store.
+			while (res->next()) {
+				accIdBanList.insert(std::pair<int, bool>(res->getInt(1), true));
+			}
+
+			// Reset tick counter.
+			framesSinceLastBanFetch = 0;
+		}
+		else framesSinceLastBanFetch++;
+
+		// Custom Luplo - Live Ban Management
+		if (framesSinceLastBanUpdate > 200) {
+			for (auto i = 0; i < Game::server->GetReplicaManager()->GetParticipantCount(); i++) {
+        		const auto& player = Game::server->GetReplicaManager()->GetParticipantAtIndex(i);
+        		auto* entity = Player::GetPlayer(player);
+        		// Game::logger->Log("WorldServer", "Running Player Punkbuster against %d entries!\n", accIdBanList.size());
+				// entity->GetParentUser()->GetAccountID()
+				auto search = accIdBanList.find(entity->GetParentUser()->GetAccountID());
+				if (search != accIdBanList.end()) {
+					// Match found, to disconnect.
+					Game::logger->Log("WorldServer-LiveBan", "Account %s (%d) was matched against %d entries!\n", entity->GetParentUser()->GetUsername().c_str(), entity->GetParentUser()->GetAccountID(), accIdBanList.size());
+					Game::server->Disconnect(entity->GetSystemAddress(), SERVER_DISCON_KICK);
+				}
+    		}
+
+			// Reset tick counter.
+			framesSinceLastBanUpdate = 0;
+		}
+		else framesSinceLastBanUpdate++;
 
 		Metrics::EndMeasurement(MetricVariable::GameLoop);
 
