@@ -481,14 +481,14 @@ int main(int argc, char** argv) {
 			for (auto i = 0; i < Game::server->GetReplicaManager()->GetParticipantCount(); i++) {
         		const auto& player = Game::server->GetReplicaManager()->GetParticipantAtIndex(i);
         		auto* entity = Player::GetPlayer(player);
-        		// Game::logger->Log("WorldServer", "Running Player Punkbuster against %d entries!\n", accIdBanList.size());
-				// entity->GetParentUser()->GetAccountID()
+			if (entity) { // Check if the entitiy is actually in game. Not checking this will crash the (switch-minfig) screen.
 				auto search = accIdBanList.find(entity->GetParentUser()->GetAccountID());
 				if (search != accIdBanList.end()) {
 					// Match found, to disconnect.
 					Game::logger->Log("WorldServer-LiveBan", "Account %s (%d) was matched against %d entries!\n", entity->GetParentUser()->GetUsername().c_str(), entity->GetParentUser()->GetAccountID(), accIdBanList.size());
 					Game::server->Disconnect(entity->GetSystemAddress(), SERVER_DISCON_KICK);
 				}
+			}
     		}
 
 			// Reset tick counter.
