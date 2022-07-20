@@ -152,13 +152,6 @@ now follow the build section for your system
 
 ## Setting up the environment
 
-### Database
-Darkflame Universe utilizes a MySQL/MariaDB database for account and character information.
-
-Initial setup can vary drastically based on which operating system or distribution you are running; there are instructions out there for most setups, follow those and come back here when you have a database up and running.
-* Create a database for Darkflame Universe to use
-* Run each SQL file in the order at which they appear [here](migrations/dlu/) on the database
-
 ### Resources
 
 **LEGO® Universe 1.10.64**
@@ -201,6 +194,13 @@ certutil -hashfile <file> SHA256
 * Use `fdb_to_sqlite.py` in lcdr's utilities on `res/cdclient.fdb` in the unpacked client to convert the client database to `cdclient.sqlite`
 * Move and rename `cdclient.sqlite` into `build/res/CDServer.sqlite`
 * Run each SQL file in the order at which they appear [here](migrations/cdserver/) on the SQLite database
+
+### Database
+Darkflame Universe utilizes a MySQL/MariaDB database for account and character information.
+
+Initial setup can vary drastically based on which operating system or distribution you are running; there are instructions out there for most setups, follow those and come back here when you have a database up and running.
+* Create a database for Darkflame Universe to use
+* Use the command `./MasterServer -m` to automatically run them.
 
 **Configuration**
 
@@ -417,10 +417,11 @@ Here is a summary of the commands available in-game. All commands are prefixed b
 </tbody>
 </table>
 
-## Credits
+# Credits
 ## Active Contributors
 * [EmosewaMC](https://github.com/EmosewaMC)
 * [Jettford](https://github.com/Jettford)
+* [Aaron K.](https://github.com/aronwk-aaron)
 
 ## DLU Team
 * [DarwinAnim8or](https://github.com/DarwinAnim8or)
@@ -429,10 +430,6 @@ Here is a summary of the commands available in-game. All commands are prefixed b
 * [averysumner](https://github.com/codeshaunted)
 * [Jon002](https://github.com/jaller200)
 * [Jonny](https://github.com/cuzitsjonny)
-* TheMachine
-* Matthew
-* [Raine](https://github.com/Rainebannister)
-* Bricknave
 
 ### Research and tools
 * [lcdr](https://github.com/lcdr)
@@ -444,11 +441,14 @@ Here is a summary of the commands available in-game. All commands are prefixed b
 ### Former contributors
 * TheMachine
 * Matthew
-* Raine
+* [Raine](https://github.com/Rainebannister)
 * Bricknave
 
-### Special thanks
+### Logo
+* Cole Peterson (BlasterBuilder)
+
+## Special thanks
 * humanoid24
 * pwjones1969
-* BlasterBuilder for the logo
+* [Simon](https://github.com/SimonNitzsche)
 * ALL OF THE NETDEVIL AND LEGO TEAMS!
