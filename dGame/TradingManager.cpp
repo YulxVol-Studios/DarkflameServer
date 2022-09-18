@@ -279,6 +279,7 @@ void Trade::SendUpdateToOther(LWOOBJID participant)
     Game::logger->Log("Trade", "Sending trade update\n");
 
     GameMessages::SendServerTradeUpdate(other->GetObjectID(), coins, items, other->GetSystemAddress());
+  }
 }
 
 TradingManager::TradingManager() {
