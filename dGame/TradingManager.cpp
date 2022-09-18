@@ -25,34 +25,28 @@ Trade::~Trade()
 
 }
 
-LWOOBJID Trade::GetTradeId() const
-{
-    return m_TradeId;
+LWOOBJID Trade::GetTradeId() const {
+	return m_TradeId;
 }
 
-bool Trade::IsParticipant(LWOOBJID playerId) const
-{
-    return m_ParticipantA == playerId || m_ParticipantB == playerId;
+bool Trade::IsParticipant(LWOOBJID playerId) const {
+	return m_ParticipantA == playerId || m_ParticipantB == playerId;
 }
 
-LWOOBJID Trade::GetParticipantA() const
-{
-    return m_ParticipantA;
+LWOOBJID Trade::GetParticipantA() const {
+	return m_ParticipantA;
 }
 
-LWOOBJID Trade::GetParticipantB() const
-{
-    return m_ParticipantB;
+LWOOBJID Trade::GetParticipantB() const {
+	return m_ParticipantB;
 }
 
-Entity* Trade::GetParticipantAEntity() const
-{
-    return EntityManager::Instance()->GetEntity(m_ParticipantA);
+Entity* Trade::GetParticipantAEntity() const {
+	return EntityManager::Instance()->GetEntity(m_ParticipantA);
 }
 
-Entity* Trade::GetParticipantBEntity() const
-{
-    return EntityManager::Instance()->GetEntity(m_ParticipantB);
+Entity* Trade::GetParticipantBEntity() const {
+	return EntityManager::Instance()->GetEntity(m_ParticipantB);
 }
 
 void Trade::SetCoins(LWOOBJID participant, uint64_t coins)
@@ -85,22 +79,19 @@ void Trade::SetAccepted(LWOOBJID participant, bool value)
     {
         m_AcceptedA = !value;
 
-        Game::logger->Log("Trade", "Accepted from A (%d), B: (%d)\n", value, m_AcceptedB);
+		Game::logger->Log("Trade", "Accepted from A (%d), B: (%d)", value, m_AcceptedB);
 
-        auto* entityB = GetParticipantBEntity();
+		auto* entityB = GetParticipantBEntity();
 
-        if (entityB != nullptr)
-        {
-            GameMessages::SendServerTradeAccept(m_ParticipantB, value, entityB->GetSystemAddress());
-        }
-    }
-    else if (participant == m_ParticipantB)
-    {
-        m_AcceptedB = !value;
+		if (entityB != nullptr) {
+			GameMessages::SendServerTradeAccept(m_ParticipantB, value, entityB->GetSystemAddress());
+		}
+	} else if (participant == m_ParticipantB) {
+		m_AcceptedB = !value;
 
-        Game::logger->Log("Trade", "Accepted from B (%d), A: (%d)\n", value, m_AcceptedA);
+		Game::logger->Log("Trade", "Accepted from B (%d), A: (%d)", value, m_AcceptedA);
 
-        auto* entityA = GetParticipantAEntity();
+		auto* entityA = GetParticipantAEntity();
 
         if (entityA != nullptr)
         {
@@ -143,19 +134,19 @@ void Trade::Complete()
 
     if (entityA == nullptr || entityB == nullptr) return;
 
-    auto* inventoryA = entityA->GetComponent<InventoryComponent>();
-    auto* inventoryB = entityB->GetComponent<InventoryComponent>();
-    auto* missionsA = entityA->GetComponent<MissionComponent>();
-    auto* missionsB = entityB->GetComponent<MissionComponent>();
-    auto* characterA = entityA->GetCharacter();
-    auto* characterB = entityB->GetCharacter();
+	if (entityA == nullptr || entityB == nullptr) return;
 
-    if (inventoryA == nullptr || inventoryB == nullptr || characterA == nullptr || characterB == nullptr || missionsA == nullptr || missionsB == nullptr) return;
+	auto* inventoryA = entityA->GetComponent<InventoryComponent>();
+	auto* inventoryB = entityB->GetComponent<InventoryComponent>();
+	auto* missionsA = entityA->GetComponent<MissionComponent>();
+	auto* missionsB = entityB->GetComponent<MissionComponent>();
+	auto* characterA = entityA->GetCharacter();
+	auto* characterB = entityB->GetCharacter();
 
     // Store the previous coin count. Stupid vairables.
     int64_t beforeA = characterA->GetCoins();
     int64_t beforeB = characterB->GetCoins();
-    
+
     characterA->SetCoins(characterA->GetCoins() - m_CoinsA + m_CoinsB, eLootSourceType::LOOT_SOURCE_TRADE);
     characterB->SetCoins(characterB->GetCoins() - m_CoinsB + m_CoinsA, eLootSourceType::LOOT_SOURCE_TRADE);
 
@@ -177,8 +168,8 @@ void Trade::Complete()
     {
         inventoryB->RemoveItem(tradeItem.itemLot, tradeItem.itemCount, INVALID, true);
 
-        missionsB->Progress(MissionTaskType::MISSION_TASK_TYPE_ITEM_COLLECTION, tradeItem.itemLot, LWOOBJID_EMPTY, "", -tradeItem.itemCount);
-    }
+		missionsA->Progress(MissionTaskType::MISSION_TASK_TYPE_ITEM_COLLECTION, tradeItem.itemLot, LWOOBJID_EMPTY, "", -tradeItem.itemCount);
+	}
 
     // Calculated coin difference.
     int64_t p1Coins = characterA->GetCoins() - beforeA;
@@ -210,7 +201,9 @@ void Trade::Complete()
         inventoryA->AddItem(tradeItem.itemLot, tradeItem.itemCount, eLootSourceType::LOOT_SOURCE_TRADE);
     }
 
-    TradingManager::Instance()->CancelTrade(m_TradeId);
+	for (const auto& tradeItem : m_ItemsA) {
+		inventoryB->AddItem(tradeItem.itemLot, tradeItem.itemCount, eLootSourceType::LOOT_SOURCE_TRADE);
+	}
 
     characterA->SaveXMLToDatabase();
     characterB->SaveXMLToDatabase();
@@ -238,8 +231,10 @@ void Trade::Cancel()
 
     if (entityA == nullptr || entityB == nullptr) return;
 
-    GameMessages::SendServerTradeCancel(entityA->GetObjectID(), entityA->GetSystemAddress());
-    GameMessages::SendServerTradeCancel(entityB->GetObjectID(), entityB->GetSystemAddress());
+	if (entityA == nullptr || entityB == nullptr) return;
+
+	GameMessages::SendServerTradeCancel(entityA->GetObjectID(), entityA->GetSystemAddress());
+	GameMessages::SendServerTradeCancel(entityB->GetObjectID(), entityB->GetSystemAddress());
 }
 
 void Trade::SendUpdateToOther(LWOOBJID participant)
@@ -270,86 +265,70 @@ void Trade::SendUpdateToOther(LWOOBJID participant)
         return;
     }
 
-    if (other == nullptr || self == nullptr) return;
+	if (other == nullptr || self == nullptr) return;
 
-    std::vector<TradeItem> items {};
+	std::vector<TradeItem> items{};
 
-    auto* inventoryComponent = self->GetComponent<InventoryComponent>();
+	auto* inventoryComponent = self->GetComponent<InventoryComponent>();
 
-    if (inventoryComponent == nullptr) return;
+	if (inventoryComponent == nullptr) return;
 
-    for (const auto tradeItem : itemIds)
-    {
-        auto* item = inventoryComponent->FindItemById(tradeItem.itemId);
-
-        if (item == nullptr) return;
-
-        if (tradeItem.itemCount > item->GetCount()) return;
-
-        items.push_back(tradeItem);
-    }
+	for (const auto tradeItem : itemIds) {
+		auto* item = inventoryComponent->FindItemById(tradeItem.itemId);
 
     Game::logger->Log("Trade", "Sending trade update\n");
 
     GameMessages::SendServerTradeUpdate(other->GetObjectID(), coins, items, other->GetSystemAddress());
+  }
 }
 
-TradingManager::TradingManager()
-{
+TradingManager::TradingManager() {
 }
 
-TradingManager::~TradingManager()
-{
-    for (const auto& pair : trades)
-    {
-        delete pair.second;
-    }
+TradingManager::~TradingManager() {
+	for (const auto& pair : trades) {
+		delete pair.second;
+	}
 
-    trades.clear();
+	trades.clear();
 }
 
-Trade* TradingManager::GetTrade(LWOOBJID tradeId) const
-{
-    const auto& pair = trades.find(tradeId);
+Trade* TradingManager::GetTrade(LWOOBJID tradeId) const {
+	const auto& pair = trades.find(tradeId);
 
-    if (pair == trades.end()) return nullptr;
+	if (pair == trades.end()) return nullptr;
 
-    return pair->second;
+	return pair->second;
 }
 
-Trade* TradingManager::GetPlayerTrade(LWOOBJID playerId) const
-{
-    for (const auto& pair : trades)
-    {
-        if (pair.second->IsParticipant(playerId))
-        {
-            return pair.second;
-        }
-    }
+Trade* TradingManager::GetPlayerTrade(LWOOBJID playerId) const {
+	for (const auto& pair : trades) {
+		if (pair.second->IsParticipant(playerId)) {
+			return pair.second;
+		}
+	}
 
-    return nullptr;
+	return nullptr;
 }
 
-void TradingManager::CancelTrade(LWOOBJID tradeId)
-{
-    auto* trade = GetTrade(tradeId);
+void TradingManager::CancelTrade(LWOOBJID tradeId) {
+	auto* trade = GetTrade(tradeId);
 
-    if (trade == nullptr) return;
+	if (trade == nullptr) return;
 
-    delete trade;
+	delete trade;
 
-    trades.erase(tradeId);
+	trades.erase(tradeId);
 }
 
-Trade* TradingManager::NewTrade(LWOOBJID participantA, LWOOBJID participantB)
-{
-    const LWOOBJID tradeId = ObjectIDManager::Instance()->GenerateObjectID();
+Trade* TradingManager::NewTrade(LWOOBJID participantA, LWOOBJID participantB) {
+	const LWOOBJID tradeId = ObjectIDManager::Instance()->GenerateObjectID();
 
-    auto* trade = new Trade(tradeId, participantA, participantB);
+	auto* trade = new Trade(tradeId, participantA, participantB);
 
-    trades[tradeId] = trade;
+	trades[tradeId] = trade;
 
-    Game::logger->Log("TradingManager", "Created new trade between (%llu) <-> (%llu)\n", participantA, participantB);
+	Game::logger->Log("TradingManager", "Created new trade between (%llu) <-> (%llu)", participantA, participantB);
 
-    return trade;
+	return trade;
 }
