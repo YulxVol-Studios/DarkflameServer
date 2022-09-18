@@ -265,12 +265,6 @@ void Trade::SendUpdateToOther(LWOOBJID participant)
         return;
     }
 
-    if (other == nullptr || self == nullptr) return;
-
-    std::vector<TradeItem> items {};
-
-    auto* inventoryComponent = self->GetComponent<InventoryComponent>();
-
 	if (other == nullptr || self == nullptr) return;
 
 	std::vector<TradeItem> items{};
