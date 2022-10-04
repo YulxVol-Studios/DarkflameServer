@@ -201,10 +201,6 @@ void Trade::Complete()
         inventoryA->AddItem(tradeItem.itemLot, tradeItem.itemCount, eLootSourceType::LOOT_SOURCE_TRADE);
     }
 
-	for (const auto& tradeItem : m_ItemsA) {
-		inventoryB->AddItem(tradeItem.itemLot, tradeItem.itemCount, eLootSourceType::LOOT_SOURCE_TRADE);
-	}
-
     characterA->SaveXMLToDatabase();
     characterB->SaveXMLToDatabase();
 
