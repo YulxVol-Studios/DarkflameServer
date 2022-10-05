@@ -534,6 +534,10 @@ void Character::OnZoneLoad() {
 
 	// Remove all GM items
 	for (const auto lot : Inventory::GetAllGMItems()) {
+		
+		// Some items that are part of our (Luplo) exception from the GM-restricted list.
+		if (lot == 1727) continue; // GM-Only Jetpack.
+		
 		inventoryComponent->RemoveItem(lot, inventoryComponent->GetLotCount(lot));
 	}
 }
